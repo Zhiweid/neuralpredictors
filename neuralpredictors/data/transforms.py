@@ -203,12 +203,12 @@ class NeuroNormalizer(MovieTransform, StaticTransform, Invertible):
     """
     Note that this normalizer only works with MovieDataset of very specific formulation
 
-    Normalizes a trial with fields: inputs, behavior, eye_position, and responses. The pair of
-    behavior and eye_position can be missing. The following normalizations are applied:
+    Normalizes a trial with fields: inputs, behavior, pupil_center, and responses. The pair of
+    behavior and pupil_center can be missing. The following normalizations are applied:
 
     - inputs are scaled by the training std of the stats_source and centered on the mean of the movie
     - behavior is divided by the std if the std is greater than 1% of the mean std (to avoid division by 0)
-    - eye_position is z-scored
+    - pupil_center is z-scored
     - reponses are divided by the per neuron std if the std is greater than
             1% of the mean std (to avoid division by 0)
     """
@@ -239,12 +239,12 @@ class NeuroNormalizer(MovieTransform, StaticTransform, Invertible):
         transforms["responses"] = lambda x: x * self._response_precision
         itransforms["responses"] = lambda x: x / self._response_precision
 
-        if "eye_position" in data.data_keys:
+        if "pupil_center" in data.data_keys:
             # -- eye position
-            self._eye_mean = np.array(data.statistics["eye_position"][stats_source]["mean"])
-            self._eye_std = np.array(data.statistics["eye_position"][stats_source]["std"])
-            transforms["eye_position"] = lambda x: (x - self._eye_mean) / self._eye_std
-            itransforms["eye_position"] = lambda x: x * self._eye_std + self._eye_mean
+            self._eye_mean = np.array(data.statistics["pupil_center"][stats_source]["mean"])
+            self._eye_std = np.array(data.statistics["pupil_center"][stats_source]["std"])
+            transforms["pupil_center"] = lambda x: (x - self._eye_mean) / self._eye_std
+            itransforms["pupil_center"] = lambda x: x * self._eye_std + self._eye_mean
 
             s = np.array(data.statistics["behavior"][stats_source]["std"])
 
